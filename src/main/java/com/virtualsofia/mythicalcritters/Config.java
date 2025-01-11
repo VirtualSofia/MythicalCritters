@@ -1,4 +1,4 @@
-package com.virtualsofia;
+package com.virtualsofia.mythicalcritters;
 
 import java.util.List;
 import java.util.Set;

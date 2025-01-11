@@ -1,5 +1,7 @@
 {
   "itemGroup.mythicalcritters": "Example Mod Tab",
   "block.mythicalcritters.example_block": "Example Block",
-  "item.mythicalcritters.example_item": "Example Item"
+  "item.mythicalcritters.example_item": "Example Item",
+
+  "entity.mccourse.shroom": "Shroom"
 }
