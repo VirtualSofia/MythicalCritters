@@ -14,23 +14,25 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.AgeableMob;
-import net.minecraft.world.entity.AnimationState;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
+import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.allay.Allay;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.vibrations.VibrationSystem;
@@ -257,6 +259,19 @@ public class ShroomEntity extends TamableAnimal {
              this.level().addFreshEntity(shroom);
              shroom.age = -25000;
          }
+    }
+
+
+    public static boolean shroomSpawnRules(
+            EntityType<? extends Animal> animal, LevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random
+    ) {
+        boolean spawnBlock = level.getBlockState(pos.below()).is(Blocks.MYCELIUM);
+        boolean flag = MobSpawnType.ignoresLightRequirements(spawnType)|| isBrightEnoughToSpawn(level, pos);
+        return (level.getBlockState(pos.below()).is(BlockTags.ANIMALS_SPAWNABLE_ON) && flag) || (spawnBlock && flag);
+    }
+
+    protected static boolean isBrightEnoughToSpawn(BlockAndTintGetter level, BlockPos pos) {
+        return level.getRawBrightness(pos, 0) > 8;
     }
 }
 
