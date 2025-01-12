@@ -11,7 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 public class ShroomRenderer extends MobRenderer<ShroomEntity, ShroomModel<ShroomEntity>> {
 
     public ShroomRenderer(EntityRendererProvider.Context context) {
-        super(context, new ShroomModel<>(context.bakeLayer(ShroomModel.LAYER_LOCATION)), .5f);
+        super(context, new ShroomModel<>(context.bakeLayer(ShroomModel.LAYER_LOCATION)), .25f);
     }
 
     @Override
