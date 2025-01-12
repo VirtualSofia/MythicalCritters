@@ -33,6 +33,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.vibrations.VibrationSystem;
@@ -60,6 +61,7 @@ public class ShroomEntity extends TamableAnimal {
 
     //DECLARE FOOD
     private static final TagKey<Item> SHROOM_FOOD = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(MythicalCritters.MODID, "shroom_food"));
+    private static final TagKey<Block> SHROOM_BLOCKS = TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath(MythicalCritters.MODID, "shroom_blocks"));
 
     //Entity Data Builder
     @Override
@@ -245,23 +247,22 @@ public class ShroomEntity extends TamableAnimal {
         BlockPos pos = this.blockPosition();
         BlockPos groundPos = pos.offset(0, -1,0);
         BlockState groundState = this.level().getBlockState(groundPos);
-        return groundState.is(Blocks.GRASS_BLOCK);
-       // Boolean b = this.entityData.get(isInLove());
-    }
+        return groundState.is(SHROOM_BLOCKS);
 
+    }
 
      public void duplicate(){
         this.entityData.set(DATA_DUPLICATE_COOLDOWN, 6000);
          ShroomEntity shroom = ModEntities.SHROOM.get().create(this.level());
          if (shroom != null) {
              shroom.moveTo(this.position());
-
-             this.level().addFreshEntity(shroom);
              shroom.age = -25000;
+             this.level().addFreshEntity(shroom);
+
          }
     }
 
-
+//SPAWN CONDITIONS
     public static boolean shroomSpawnRules(
             EntityType<? extends Animal> animal, LevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random
     ) {
