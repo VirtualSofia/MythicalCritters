@@ -36,6 +36,8 @@ public class ShroomEntity extends TamableAnimal {
     public final AnimationState sitAnimationState = new AnimationState();
     public final AnimationState satAnimationState = new AnimationState();
     private int idleAnimationTimeout = 0;
+    private boolean sitAnimationPlayed = false;
+    private boolean satAnimationPlayed = false;
 
     //DECLARE ENTITY
     public ShroomEntity(EntityType<? extends TamableAnimal> entityType, Level level) {
@@ -83,13 +85,39 @@ public class ShroomEntity extends TamableAnimal {
         return ModEntities.SHROOM.get().create(level);
     }
 
-    //IDLE ANIM LOGIC
+    // ANIMATION LOGIC
     private void setupAnimationStates(){
-        if(this.idleAnimationTimeout <= 0) {
+        //Idle
+        if(this.idleAnimationTimeout <= 0 && !this.sitAnimationPlayed) {
             this.idleAnimationTimeout = 20;
             this.idleAnimationState.start(this.tickCount);
+            LOGGER.info("Idle Play");
         } else {
             --this.idleAnimationTimeout;
+        }
+        //sit
+        if (isInSittingPose()) {
+            if(!this.sitAnimationPlayed) {
+                this.idleAnimationState.stop();
+                // not sure if this is needed but is needed in unsit
+                this.satAnimationState.stop();
+                //plays the animation
+                this.sitAnimationState.start(this.tickCount);
+                //so doesnt play aniamtion again
+                sitAnimationPlayed = true;
+            }
+            //so sat animation can be played again
+            satAnimationPlayed = false;
+        }
+        //unsit
+        if (!isInSittingPose()) {
+            if(!this.satAnimationPlayed) {
+                //not sure why this is needed but sat animation doesn't play right without it
+                this.sitAnimationState.stop();
+                this.satAnimationState.start(this.tickCount);
+                satAnimationPlayed = true;
+            }
+            sitAnimationPlayed = false;
         }
     }
 
@@ -105,7 +133,7 @@ public class ShroomEntity extends TamableAnimal {
     }
 
 
-    //tame logic (direct from wolf, should be tweaked)
+    //tame logic (direct from wolf, values should be tweaked)
     private void tryToTame(Player player) {
         if (this.random.nextInt(3) == 0  && !net.neoforged.neoforge.event.EventHooks.onAnimalTame(this, player)) {
             this.tame(player);
@@ -125,19 +153,15 @@ public class ShroomEntity extends TamableAnimal {
         Item item = itemstack.getItem();
         //Taming
         if (itemstack.is(Items.BONE) && !this.isOwnedBy(player)) {
-            itemstack.consume(1, player);
+            itemstack.consume(1, player );
             this.tryToTame(player);
 
             return InteractionResult.SUCCESS;
         }
+
         //Sitting
-    else if (!itemstack.is(Items.BONE) && !itemstack.is(SHROOM_FOOD) && this.isOwnedBy(player)) {
-            //plays sit animation
-            if(!this.isOrderedToSit()) {
-                this.sitAnimationState.start(this.tickCount);
-            }else {
-                this.sitAnimationState.stop();
-                this.satAnimationState.start(this.tickCount);}
+        else if (!itemstack.is(Items.BONE) && !itemstack.is(SHROOM_FOOD) && this.isOwnedBy(player)) {
+
             //sit/unsit logic
             this.setOrderedToSit(!this.isOrderedToSit());
             this.jumping = false;
@@ -151,6 +175,7 @@ public class ShroomEntity extends TamableAnimal {
 
     }
 
+    //GETS IF SITTING, no idea how this works, stolen directly from wolf
     public boolean isInSittingPose() {
         return (this.entityData.get(DATA_FLAGS_ID) & 1) != 0;
     }

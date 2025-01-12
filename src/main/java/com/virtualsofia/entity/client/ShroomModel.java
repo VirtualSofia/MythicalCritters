@@ -11,6 +11,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 import javax.swing.text.html.parser.Entity;
 
@@ -69,6 +70,8 @@ public class ShroomModel<T extends ShroomEntity> extends HierarchicalModel<T> {
             this.animate(entity.sitAnimationState, ShroomAnimations.ANIM_SHROOM_SIT, ageInTicks, 1f);
             this.animate(entity.satAnimationState, ShroomAnimations.ANIM_SHROOM_SAT, ageInTicks, 1f);
         }
+
+
 
         @Override
         public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {

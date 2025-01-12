@@ -22,7 +22,7 @@ public class ModEntities {
     //Register Entities
     public static final Supplier<EntityType<ShroomEntity>> SHROOM =
             ENTITY_TYPES.register("shroom", () -> EntityType.Builder.of(ShroomEntity::new, MobCategory.CREATURE)
-                    .sized(.5f,.5f).build("shroom"));
+                    .sized(.5f,.6f).build("shroom"));
 
 
 }
