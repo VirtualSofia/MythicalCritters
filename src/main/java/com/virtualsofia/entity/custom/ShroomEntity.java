@@ -3,11 +3,17 @@ package com.virtualsofia.entity.custom;
 import com.mojang.logging.LogUtils;
 import com.virtualsofia.entity.ModEntities;
 import com.virtualsofia.mythicalcritters.MythicalCritters;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -18,16 +24,22 @@ import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
+import net.minecraft.world.entity.animal.allay.Allay;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.vibrations.VibrationSystem;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 public class ShroomEntity extends TamableAnimal {
+    //Entity DAta stuff
+    private static final EntityDataAccessor<Integer> DATA_DUPLICATE_COOLDOWN = SynchedEntityData.defineId(ShroomEntity.class, EntityDataSerializers.INT);
     //DECLARES LOGGER for debugging
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -46,6 +58,31 @@ public class ShroomEntity extends TamableAnimal {
 
     //DECLARE FOOD
     private static final TagKey<Item> SHROOM_FOOD = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(MythicalCritters.MODID, "shroom_food"));
+
+    //Entity Data Builder
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+
+        builder.define(DATA_DUPLICATE_COOLDOWN, 0);
+    }
+
+    public void addAdditionalSaveData(CompoundTag compound) {
+        super.addAdditionalSaveData(compound);
+        compound.putInt("DuplicateCooldown", this.duplicateCooldown());
+    }
+
+    private int duplicateCooldown() {
+
+        return this.entityData.get(DATA_DUPLICATE_COOLDOWN);
+    }
+    @Override
+    public void readAdditionalSaveData(CompoundTag compound) {
+        super.readAdditionalSaveData(compound);
+
+        this.entityData.set(DATA_DUPLICATE_COOLDOWN, compound.getInt("DuplicateCooldown"));
+    }
+
 
 
     //GOALS/MAIN AI
@@ -75,8 +112,9 @@ public class ShroomEntity extends TamableAnimal {
     // SETS BREEDING FOOD
     @Override
     public boolean isFood(ItemStack stack) {
-        return stack.is(SHROOM_FOOD);
+        return false;
     }
+
 
     //SETS BABY
     @Nullable
@@ -91,7 +129,7 @@ public class ShroomEntity extends TamableAnimal {
         if(this.idleAnimationTimeout <= 0 && !this.sitAnimationPlayed) {
             this.idleAnimationTimeout = 20;
             this.idleAnimationState.start(this.tickCount);
-            LOGGER.info("Idle Play");
+          //  LOGGER.info("Idle Play");
         } else {
             --this.idleAnimationTimeout;
         }
@@ -125,11 +163,19 @@ public class ShroomEntity extends TamableAnimal {
     @Override
     public void tick() {
         super.tick();
+        //Server Logic
+        if(!this.level().isClientSide){
+            if (duplicateCooldown() > 0){
+                int down = duplicateCooldown() - 1;
+                this.entityData.set(DATA_DUPLICATE_COOLDOWN, down);
+            }
 
+        }
         if(this.level().isClientSide()) {
             this.setupAnimationStates();
         }
-        //LOGGER.info(String.valueOf(isInSittingPose()));
+       // LOGGER.info(String.valueOf(isOnReproductonBlock()));
+
     }
 
 
@@ -147,6 +193,7 @@ public class ShroomEntity extends TamableAnimal {
     }
 
     //INTERACTIONS
+
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         //gets interacted item
         ItemStack itemstack = player.getItemInHand(hand);
@@ -158,6 +205,11 @@ public class ShroomEntity extends TamableAnimal {
 
             return InteractionResult.SUCCESS;
         }
+        //Duplicate
+        else if(itemstack.is(SHROOM_FOOD) && isOnReproductonBlock() && duplicateCooldown() <= 0 && this.age == 0){
+            this.duplicate();
+            return InteractionResult.SUCCESS;
+        }
 
         //Sitting
         else if (!itemstack.is(Items.BONE) && !itemstack.is(SHROOM_FOOD) && this.isOwnedBy(player)) {
@@ -167,10 +219,14 @@ public class ShroomEntity extends TamableAnimal {
             this.jumping = false;
             this.navigation.stop();
             this.setTarget(null);
+
+            this.duplicate();
             return InteractionResult.SUCCESS_NO_ITEM_USED;
         }
         else {
+            this.tryToTame(player);
             return super.mobInteract(player, hand);
+
         }
 
     }
@@ -178,6 +234,28 @@ public class ShroomEntity extends TamableAnimal {
     //GETS IF SITTING, no idea how this works, stolen directly from wolf
     public boolean isInSittingPose() {
         return (this.entityData.get(DATA_FLAGS_ID) & 1) != 0;
+    }
+
+
+    //Duplication
+
+    private boolean isOnReproductonBlock(){
+        BlockPos pos = this.blockPosition();
+        BlockPos groundPos = pos.offset(0, -1,0);
+        BlockState groundState = this.level().getBlockState(groundPos);
+        return groundState.is(Blocks.GRASS_BLOCK);
+       // Boolean b = this.entityData.get(isInLove());
+    }
+
+
+     public void duplicate(){
+        this.entityData.set(DATA_DUPLICATE_COOLDOWN, 6000);
+         ShroomEntity shroom = ModEntities.SHROOM.get().create(this.level());
+         if (shroom != null) {
+             shroom.moveTo(this.position());
+             shroom.age = -25000;
+             this.level().addFreshEntity(shroom);
+         }
     }
 }
 
