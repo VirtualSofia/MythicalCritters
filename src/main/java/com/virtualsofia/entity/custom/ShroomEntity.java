@@ -220,11 +220,11 @@ public class ShroomEntity extends TamableAnimal {
             this.navigation.stop();
             this.setTarget(null);
 
-            this.duplicate();
+
             return InteractionResult.SUCCESS_NO_ITEM_USED;
         }
         else {
-            this.tryToTame(player);
+
             return super.mobInteract(player, hand);
 
         }
@@ -253,8 +253,9 @@ public class ShroomEntity extends TamableAnimal {
          ShroomEntity shroom = ModEntities.SHROOM.get().create(this.level());
          if (shroom != null) {
              shroom.moveTo(this.position());
-             shroom.age = -25000;
+
              this.level().addFreshEntity(shroom);
+             shroom.age = -25000;
          }
     }
 }
