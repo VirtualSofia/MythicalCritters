@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import com.virtualsofia.entity.ModEntities;
 import com.virtualsofia.mythicalcritters.MythicalCritters;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -11,6 +12,8 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
@@ -215,6 +218,20 @@ public class ShroomEntity extends TamableAnimal {
         //Duplicate
         else if(itemstack.is(SHROOM_FOOD) && isOnReproductonBlock() && duplicateCooldown() <= 0 && this.age == 0){
             this.duplicate();
+            //i know this is atrocious but its easy
+            spawnSporeParticle();
+            spawnSporeParticle();
+            spawnSporeParticle();
+            spawnSporeParticle();
+            spawnSporeParticle();
+            spawnSporeParticle();
+            spawnSporeParticle();
+            spawnSporeParticle();
+            spawnSporeParticle();
+            spawnSporeParticle();
+            spawnSporeParticle();
+            spawnSporeParticle();
+            this.level().playSound(player, this, SoundEvents.DYE_USE, SoundSource.NEUTRAL, 2.0F, 1.0F);
             return InteractionResult.SUCCESS;
         }
 
@@ -262,6 +279,13 @@ public class ShroomEntity extends TamableAnimal {
              this.level().addFreshEntity(shroom);
              shroom.setAge(-24000);
          }
+    }
+
+    private void spawnSporeParticle() {
+        double d0 = this.random.nextGaussian() * 0.02;
+        double d1 = this.random.nextGaussian() * 0.02;
+        double d2 = this.random.nextGaussian() * 0.02;
+        this.level().addParticle(ParticleTypes.MYCELIUM, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), d0, d1, d2);
     }
 
 //SPAWN CONDITIONS
