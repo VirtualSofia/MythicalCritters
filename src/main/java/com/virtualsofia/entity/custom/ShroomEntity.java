@@ -6,12 +6,9 @@ import com.virtualsofia.mythicalcritters.MythicalCritters;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
@@ -24,7 +21,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.allay.Allay;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -36,13 +32,13 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.gameevent.vibrations.VibrationSystem;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 public class ShroomEntity extends TamableAnimal {
     //Entity DAta stuff
     private static final EntityDataAccessor<Integer> DATA_DUPLICATE_COOLDOWN = SynchedEntityData.defineId(ShroomEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> AGE = SynchedEntityData.defineId(ShroomEntity.class, EntityDataSerializers.INT);
     //DECLARES LOGGER for debugging
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -69,16 +65,20 @@ public class ShroomEntity extends TamableAnimal {
         super.defineSynchedData(builder);
 
         builder.define(DATA_DUPLICATE_COOLDOWN, 0);
+        builder.define(AGE, this.age);
     }
 
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         compound.putInt("DuplicateCooldown", this.duplicateCooldown());
+        compound.putInt("Age", this.age);
     }
 
     private int duplicateCooldown() {
-
         return this.entityData.get(DATA_DUPLICATE_COOLDOWN);
+    }
+    private int age(){
+        return this.entityData.get(AGE);
     }
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
@@ -177,6 +177,9 @@ public class ShroomEntity extends TamableAnimal {
         }
         if(this.level().isClientSide()) {
             this.setupAnimationStates();
+            this.age = this.entityData.get(AGE);
+            LOGGER.info(String.valueOf(this.entityData.get(AGE)));
+
         }
        // LOGGER.info(String.valueOf(isOnReproductonBlock()));
 
@@ -202,8 +205,8 @@ public class ShroomEntity extends TamableAnimal {
         //gets interacted item
         ItemStack itemstack = player.getItemInHand(hand);
         Item item = itemstack.getItem();
-        //Taming
-        if (itemstack.is(Items.BONE) && !this.isOwnedBy(player)) {
+        //Taming                                                           //checks if can duplicate
+        if (itemstack.is(SHROOM_FOOD) && !this.isOwnedBy(player) && (duplicateCooldown() > 0 || (this.age < 0))) {
             itemstack.consume(1, player );
             this.tryToTame(player);
 
@@ -256,9 +259,8 @@ public class ShroomEntity extends TamableAnimal {
          ShroomEntity shroom = ModEntities.SHROOM.get().create(this.level());
          if (shroom != null) {
              shroom.moveTo(this.position());
-             shroom.age = -25000;
              this.level().addFreshEntity(shroom);
-
+             shroom.setAge(-24000);
          }
     }
 
