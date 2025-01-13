@@ -4,6 +4,7 @@ import com.virtualsofia.entity.ModEntities;
 import com.virtualsofia.entity.client.ShroomRenderer;
 import com.virtualsofia.item.ModItems;
 import net.minecraft.client.renderer.entity.EntityRenderers;
+import net.minecraft.world.item.CreativeModeTabs;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -67,9 +68,14 @@ public class MythicalCritters
 
     }
 
-    // Add the example block item to the building blocks tab
-    private void addCreative(BuildCreativeModeTabContentsEvent event)
-    {
+    //SPAWN EGGS CREATIVE TAB
+    private void addCreative(BuildCreativeModeTabContentsEvent event) {
+        if(event.getTabKey() == CreativeModeTabs.SPAWN_EGGS) {
+            event.accept(ModItems.SHROOM_SPAWN_EGG);
+
+        }
+
+
 
     }
 
