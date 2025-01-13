@@ -1,7 +1,5 @@
 {
-  "itemGroup.mythicalcritters": "Example Mod Tab",
-  "block.mythicalcritters.example_block": "Example Block",
-  "item.mythicalcritters.example_item": "Example Item",
 
-  "entity.mccourse.shroom": "Shroom"
+  "entity.mythicalcritters.shroom": "Shroom",
+  "item.mythicalcritters.shroom_spawn_egg": "Shroom Spawn Egg"
 }

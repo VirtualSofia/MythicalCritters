@@ -2,6 +2,7 @@ package com.virtualsofia.mythicalcritters;
 
 import com.virtualsofia.entity.ModEntities;
 import com.virtualsofia.entity.client.ShroomRenderer;
+import com.virtualsofia.item.ModItems;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import org.slf4j.Logger;
 
@@ -46,14 +47,18 @@ public class MythicalCritters
         // Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
         NeoForge.EVENT_BUS.register(this);
 
+        ModItems.register(modEventBus);
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);
 
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
 
-
+        //REGISTER ENTITES
         ModEntities.register(modEventBus);
+
+
+
 
     }
 
