@@ -268,7 +268,7 @@ public class ShroomEntity extends TamableAnimal {
     public static boolean shroomSpawnRules(
             EntityType<? extends Animal> animal, LevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random
     ) {
-        boolean spawnBlock = level.getBlockState(pos.below()).is(Blocks.MYCELIUM);
+        boolean spawnBlock = (level.getBlockState(pos.below()).is(Blocks.MYCELIUM) || level.getBlockState(pos.below()).is(Blocks.PODZOL));
         boolean flag = MobSpawnType.ignoresLightRequirements(spawnType)|| isBrightEnoughToSpawn(level, pos);
         return (level.getBlockState(pos.below()).is(BlockTags.ANIMALS_SPAWNABLE_ON) && flag) || (spawnBlock && flag);
     }
