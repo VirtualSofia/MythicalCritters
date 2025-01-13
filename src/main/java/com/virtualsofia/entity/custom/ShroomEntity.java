@@ -133,7 +133,7 @@ public class ShroomEntity extends TamableAnimal {
         if(this.idleAnimationTimeout <= 0 && !this.sitAnimationPlayed) {
             this.idleAnimationTimeout = 20;
             this.idleAnimationState.start(this.tickCount);
-          //  LOGGER.info("Idle Play");
+
         } else {
             --this.idleAnimationTimeout;
         }
@@ -178,10 +178,10 @@ public class ShroomEntity extends TamableAnimal {
         if(this.level().isClientSide()) {
             this.setupAnimationStates();
             this.age = this.entityData.get(AGE);
-            LOGGER.info(String.valueOf(this.entityData.get(AGE)));
+
 
         }
-       // LOGGER.info(String.valueOf(isOnReproductonBlock()));
+
 
     }
 
