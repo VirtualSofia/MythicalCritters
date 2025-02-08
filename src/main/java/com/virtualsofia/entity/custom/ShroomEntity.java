@@ -208,17 +208,19 @@ public class ShroomEntity extends TamableAnimal {
         //gets interacted item
         ItemStack itemstack = player.getItemInHand(hand);
         Item item = itemstack.getItem();
-        //Taming                                                           //checks if can duplicate
-        if (itemstack.is(SHROOM_FOOD) && !this.isOwnedBy(player) && (duplicateCooldown() > 0 || (this.age < 0))) {
+        //Taming
+        if (itemstack.is(SHROOM_FOOD) && !this.isOwnedBy(player)) {
             itemstack.consume(1, player );
             this.tryToTame(player);
 
             return InteractionResult.SUCCESS;
         }
         //Duplicate
-        else if(itemstack.is(SHROOM_FOOD) && isOnReproductonBlock() && duplicateCooldown() <= 0 && this.age == 0){
+        else if(itemstack.is(Items.SLIME_BLOCK) && isOnReproductonBlock() && duplicateCooldown() <= 0 && this.age == 0){
             this.duplicate();
             //i know this is atrocious but its easy
+            spawnSporeParticle();
+            spawnSporeParticle();
             spawnSporeParticle();
             spawnSporeParticle();
             spawnSporeParticle();
