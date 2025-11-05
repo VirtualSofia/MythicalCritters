@@ -14,6 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
@@ -292,11 +293,17 @@ public class ShroomEntity extends TamableAnimal {
 
 //SPAWN CONDITIONS
     public static boolean shroomSpawnRules(
-            EntityType<? extends Animal> animal, LevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random
+            EntityType<ShroomEntity> entity, LevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random
     ) {
-        boolean spawnBlock = (level.getBlockState(pos.below()).is(Blocks.MYCELIUM) || level.getBlockState(pos.below()).is(Blocks.PODZOL));
-        boolean flag = MobSpawnType.ignoresLightRequirements(spawnType)|| isBrightEnoughToSpawn(level, pos);
-        return (level.getBlockState(pos.below()).is(BlockTags.ANIMALS_SPAWNABLE_ON) && flag) || (spawnBlock && flag);
+        if (level.getBiome(pos).is(BiomeTags.IS_NETHER)) {
+            return true;
+        }
+        else {
+            boolean spawnBlock = (level.getBlockState(pos.below()).is(Blocks.MYCELIUM) || level.getBlockState(pos.below()).is(Blocks.PODZOL) || level.getBlockState(pos).is(Blocks.RED_MUSHROOM));
+            boolean flag = MobSpawnType.ignoresLightRequirements(spawnType) || isBrightEnoughToSpawn(level, pos);
+            return (level.getBlockState(pos.below()).is(BlockTags.ANIMALS_SPAWNABLE_ON) && flag) || (spawnBlock && flag);
+        }
+
     }
 
     protected static boolean isBrightEnoughToSpawn(BlockAndTintGetter level, BlockPos pos) {

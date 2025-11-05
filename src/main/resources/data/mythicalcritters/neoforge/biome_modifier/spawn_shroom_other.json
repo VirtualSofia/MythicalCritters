@@ -3,7 +3,10 @@
   "biomes": [
     "minecraft:old_growth_pine_taiga",
     "minecraft:old_growth_spruce_taiga",
-    "minecraft:dark_forest"
+    "minecraft:dark_forest",
+    "minecraft:nether_wastes",
+    "minecraft:crimson_forest",
+    "minecraft:warped_forest"
   ],
   "spawners": {
     "type": "mythicalcritters:shroom",
