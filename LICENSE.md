@@ -11,7 +11,7 @@ Copyright (c) VirtualSofia
 
 This license applies to any files or content under the following conditions:\
 Is any type of image or video file.\
-Contains the data of a custom 3d model. Including any file Ending in Model.java or any json model file repersenting a custom, non minecraft standard, model.
+Contains the data of a custom 3d model. Including any file Ending in Model.java or any json or java file repersenting a custom, non minecraft standard, model.
 
 This license additionally applies to any content meetings the following conditions regardless of file, the rest of the file may be used according to its license:\
 Content text; any text that falls in the artistic catagory, such as custom written lore, or stories.
